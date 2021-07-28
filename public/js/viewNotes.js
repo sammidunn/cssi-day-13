@@ -36,7 +36,7 @@ const renderDataAsHtml = (data) => {
 
 const createCard = (note, noteID, showCard) => {
     if(showCard) {
-        if(note.visibiity === "visible") {
+        if(note.visibility === "visible") {
             return `
                 <div class="column is-one-quarter">
                 <div class="card" id="noteCard">
@@ -55,10 +55,10 @@ const createCard = (note, noteID, showCard) => {
                 </div>
             `;
         }
-        return;
+        return ``;
     }
     else {
-        if(note.visibiity === "archived") {
+        if(note.visibility === "archived") {
             return `
                 <div class="column is-one-quarter">
                 <div class="card" id="noteCard">
@@ -77,7 +77,7 @@ const createCard = (note, noteID, showCard) => {
                 </div>
             `;
         }
-        return;
+        return ``;
     }
 }
 
@@ -127,7 +127,7 @@ const saveEditedNote = () => {
 }
 
 const archiveNote = (noteID) => {
-    
+    firebase.database().ref(`/users/${googleUserId}/${noteID}`).update({visibiity: "archived"});
     const card = document.querySelector("#noteCard");
     card.style.display = "none";
 }
