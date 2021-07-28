@@ -1,4 +1,5 @@
 let googleUserId;
+let visibilityVal = true;
 
 window.onload = (event) => {
   // Use this to retain user state between html pages.
@@ -27,33 +28,69 @@ const renderDataAsHtml = (data) => {
   for (const noteItem in data) {
     const note = data[noteItem];
     // For each note create an HTML card
-    cards += createCard(note, noteItem)
+    cards += createCard(note, noteItem, visibilityVal)
   };
   // Inject our string of HTML into our viewNotes.html page
   document.querySelector('#app').innerHTML = cards;
 };
 
-const createCard = (note, noteID) => {
-  return `
-    <div class="column is-one-quarter">
-      <div class="card">
-        <header class="card-header">
-          <p class="card-header-title">${note.title}</p>
-        </header>
-        <div class="card-content">
-          <div class="content">${note.text}</div>
-        </div>
-        <footer class="card-footer">
-            <a href="#" class="card-footer-item" onclick="editNote('${noteID}')">Edit</a>
-            <a href="#" class="card-footer-item" onclick="deleteNote('${noteID}')">Delete</a>
-        </footer>
-      </div>
-    </div>
-  `;
+const createCard = (note, noteID, showCard) => {
+    if(showCard) {
+        if(note.visibiity === "visible") {
+            return `
+                <div class="column is-one-quarter">
+                <div class="card" id="noteCard">
+                    <header class="card-header">
+                    <p class="card-header-title">${note.title}</p>
+                    </header>
+                    <div class="card-content">
+                    <div class="content">${note.text}</div>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="#" class="card-footer-item" onclick="editNote('${noteID}')">Edit</a>
+                        <a href="#" class="card-footer-item" onclick="archiveNote('${noteID}')">Archive</a>
+                        <a href="#" class="card-footer-item" onclick="deleteNote('${noteID}')">Delete</a>
+                    </footer>
+                </div>
+                </div>
+            `;
+        }
+        return;
+    }
+    else {
+        if(note.visibiity === "archived") {
+            return `
+                <div class="column is-one-quarter">
+                <div class="card" id="noteCard">
+                    <header class="card-header">
+                    <p class="card-header-title">${note.title}</p>
+                    </header>
+                    <div class="card-content">
+                    <div class="content">${note.text}</div>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="#" class="card-footer-item" onclick="editNote('${noteID}')">Edit</a>
+                        <a href="#" class="card-footer-item" onclick="archiveNote('${noteID}')">Archive</a>
+                        <a href="#" class="card-footer-item" onclick="deleteNote('${noteID}')">Delete</a>
+                    </footer>
+                </div>
+                </div>
+            `;
+        }
+        return;
+    }
+}
+
+const seeArchived = () => {
+    visibilityVal = false;
+    getNotes(googleUserId);
 }
 
 const deleteNote = (noteID) => {
-    firebase.database().ref(`/users/${googleUserId}/${noteID}`).remove();
+    if(window.confirm("Are you sure you want to delete this note?")) {
+        firebase.database().ref(`/users/${googleUserId}/${noteID}`).remove();
+    }
+    
 }
 
 const editNote = (noteID) => {
@@ -65,6 +102,7 @@ const editNote = (noteID) => {
 
         document.querySelector("#editTitleInput").value = note.title;
         document.querySelector("#editTextInput").value = note.text;
+        document.querySelector("#editNoteID").value = noteID
     });
     editNoteModal.classList.toggle("is-active");
 }
@@ -77,11 +115,19 @@ const closeEditModal = () => {
 const saveEditedNote = () => {
     const noteTitle = document.querySelector("#editTitleInput").value;
     const noteText = document.querySelector("#editTextInput").value;
+    const noteID = document.querySelector("#editNoteID").value;
 
     const noteEdits = {
         title: noteTitle,
         text: noteText
     };
+    firebase.database().ref(`/users/${googleUserId}/${noteID}`).update(noteEdits);
 
-    firesbase.database().ref(`/users/${googleUserId}/${noteID}`).update(noteEdits);
+    closeEditModal();
+}
+
+const archiveNote = (noteID) => {
+    
+    const card = document.querySelector("#noteCard");
+    card.style.display = "none";
 }

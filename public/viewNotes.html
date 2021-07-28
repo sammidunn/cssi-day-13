@@ -24,6 +24,11 @@
           Add a new note
         </a>
       </div>
+      <div>
+        <a class="navbar-item" href="#" onclick="seeArchived()">
+          See archived notes
+        </a>
+      </div>
     </nav>
     <div class="container">
       <div class="section">
@@ -43,6 +48,7 @@
                     <input class="input is-normal" id="editTitleInput" type="text">
                     <label class="label">Text</label>
                     <input class="input is-normal" id="editTextInput" type="text">
+                    <input id="editNoteID" type="hidden">
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-success" onclick="saveEditedNote()">Save changes</button>
